@@ -1,0 +1,49 @@
+If in case i forget password of postgres
+-> ALTER USER postgres PASSWORD 'NAYA_PASSWORD';
+
+but other options is just edit this file
+-> C:\Program Files\PostgreSQL\xx\data\pg_hba.conf
+from md5 or  scram-sha-256 to trust and restart postgres , doing this postgre won't ask for password from next time.
+
+
+//To create a db
+CREATE DATABASE videostream;
+
+// we are selecting videostream as current db
+\c videostream
+
+
+then we just created a table named users but before that we did something like 
+-> CREATE TYPE user_role AS ENUM ('user', 'admin');
+which tell “role column me sirf ‘user’ ya ‘admin’ allow karo, aur baaki koi value reject kar do.”
+and,
+CREATE EXTENSION IF NOT EXISTS "pgcrypto"; 
+this PostgreSQL me UUID generate karne ke liye ek built-in function chahiye: gen_random_uuid(). we can also use normal id but let say we have many db inside a server then risk of collision. But using UUID is globally unique.
+
+Example :
+
+CREATE TABLE videos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    uploader_id UUID REFERENCES users(id) ON DELETE CASCADE,  -- FK to users table
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(100),  -- optional
+    tags JSONB,             -- to store ["gaming", "funny", "reactjs"]
+    video_path TEXT NOT NULL, 
+    thumbnail_path TEXT,    -- optional
+    status video_status DEFAULT 'processing',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+Explanation:
+1) New table bana rahe hain videos naam se.
+2) id har video ka unique primary key. Type UUID hai — random long unique ID generate hogi automatically (like 43b7a218-8c92-4a4c-b4a4-6c1e0d9cd176. secure hai 
+3) Ye foreign key hai → connect karta hai videos.uploader_id ko users.id se. ON DELETE CASCADE → Agar user account delete ho jaye, to uske saare videos bhi auto-delete ho jayenge. isme REFERENCES user(id) constraint hai batane ke liye ki ye foreign key hai.
+4) Title of video. NULL nahi ho sakta yani title must hai.
+5)Description ka text — TEXT isliye kyunki bada content ho sakta hai.
+6) Optional category like "Education", "Gaming", etc.
+7) JSONB ek bianry JSON format hai Postgres me JSONB differently store hota hai — internal tree structure jaisa, parse kar ke store.Array / list of tags store karne ke liye. Example: ["funny", "javascript", "shorts"].Postgres ka optimized JSON type hai — fast searching.
+8) Ye file ka location store karega — jaise S3 URL /uploads/xyz.mp4 ya https://s3.amazon.com/bucket/video123
+9) Video thumbnail ka path ya image URL. Optional hai.
+10) Ye enum type hai (video_status enum create kiya hai).Do values allowed: 'processing' ya 'ready'. Jab upload ho raha hai → 'processing', convert ho gaya & ready to view → 'ready'.
