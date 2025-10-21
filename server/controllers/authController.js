@@ -1,13 +1,12 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import pool from '../db/index.js';
-import dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const pool = require('../db/index.js');
+require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
 
-dotenv.config();
 
 // REGISTER
-export const registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password)
@@ -42,7 +41,7 @@ export const registerUser = async (req, res) => {
 };
 
 // LOGIN
-export const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password)
@@ -66,9 +65,16 @@ export const loginUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // true in prod
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+
     res.status(200).json({
       message: 'Login successful',
-      token,
       user: {
         id: user.id,
         username: user.username,
@@ -81,3 +87,25 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+const profileController = async(req,res)=>{
+   try {
+    const result = await pool.query(
+      'SELECT id, username, email, role FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ message: 'User not found' });
+
+    res.json(result.rows[0]); // 👈 same format as login response
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+
+module.exports ={
+  registerUser, loginUser, profileController
+}

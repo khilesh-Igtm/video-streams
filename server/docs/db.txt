@@ -5,6 +5,9 @@ but other options is just edit this file
 -> C:\Program Files\PostgreSQL\xx\data\pg_hba.conf
 from md5 or  scram-sha-256 to trust and restart postgres , doing this postgre won't ask for password from next time.
 
+// To open postgre terminal
+=> psql -U postgres
+
 
 //To create a db
 CREATE DATABASE videostream;
