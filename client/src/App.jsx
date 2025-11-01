@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import WatchLater from "./pages/WatchLater";
 import UploadVideos from "./pages/UploadVideos";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Watch from "./pages/Watch";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/watch/:id" element={<Watch/>}/>
               <Route
                 path="/watch-later"
                 element={

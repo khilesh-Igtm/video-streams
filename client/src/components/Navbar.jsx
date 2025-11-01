@@ -19,7 +19,6 @@ export default function Navbar() {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-4">
             <Link to="/" className="text-2xl font-semibold text-slate-900">StreamTube</Link>
-            <Link to="/" className="text-sm text-slate-600 hover:text-slate-900">Home</Link>
             {user && (
              <>
               <Link to="/watch-later" className="text-sm text-slate-600 hover:text-slate-900">Watch Later</Link>

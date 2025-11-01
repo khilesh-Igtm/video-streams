@@ -8,43 +8,73 @@ export default function Home() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const fetch = async () => {
-  //     try {
-  //       const res = await api.get("/videos"); 
-  //       setVideos(res.data || []);
-  //     } catch (err) {
-  //       setVideos([]);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetch();
-  // }, []);
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const res = await api.get("/videos");
+        setVideos(res.data || []);
+      } catch (err) {
+        console.error("Failed to load videos:", err);
+        setVideos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVideos();
+  }, []);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg text-gray-500 animate-pulse">Loading videos...</div>
+      </div>
+    );
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-gray-500">No videos uploaded yet.</div>
+      </div>
+    );
+  }
+
+  console.log('the videos ',videos)
   return (
-    // <div className="max-w-6xl mx-auto p-6">
-    //   <div className="flex items-center justify-between mb-6">
-    //     <h1 className="text-3xl font-bold">Home</h1>
-    //     <div className="text-sm text-slate-600">{user ? `Logged in as ${user.username}` : "Not logged in"}</div>
-    //   </div>
+    <div className="max-w-[1400px] mx-auto px-4 py-6">
+      {/* Video Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {videos.map((video) => (
+          <Link
+            key={video.id}
+            to={`/watch/${video.id}`}
+            className="group rounded-lg overflow-hidden bg-white shadow hover:shadow-lg transition"
+          >
+            {/* Thumbnail */}
+            <div className="relative w-full aspect-video bg-gray-200">
+              <img
+                src={video.thumbnail_url}
+                alt={video.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              />
+            </div>
 
-    //   {loading ? (
-    //     <div>Loading videos...</div>
-    //   ) : videos.length === 0 ? (
-    //     <div className="text-slate-500">No videos yet.</div>
-    //   ) : (
-    //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    //       {videos.map(v => (
-    //         <Link key={v.id} to={`/watch/${v.id}`} className="block bg-white p-3 rounded shadow hover:shadow-md">
-    //           <div className="h-40 bg-slate-200 rounded mb-3 flex items-center justify-center text-slate-400">{/* thumbnail */}Thumbnail</div>
-    //           <div className="text-lg font-medium">{v.title}</div>
-    //           <div className="text-sm text-slate-500 mt-1">{v.description?.slice(0, 80)}</div>
-    //         </Link>
-    //       ))}
-    //     </div>
-    //   )}
-    // </div>
-    <h1>Home page</h1>
+            {/* Info Section */}
+            <div className="p-3">
+              <div className="text-sm font-semibold text-gray-900 line-clamp-2">
+                {video.title}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                {video.uploader_username || "Unknown"}
+              </div>
+
+              <div className="text-xs text-gray-500 mt-1">
+                {video.views} views • {new Date(video.created_at).toLocaleDateString()}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
