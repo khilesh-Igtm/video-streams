@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require('cors')
 const authRoutes = require('./routes/authRoutes.js')
 const videoRoutes = require('./routes/videoRoutes.js')
+const subscriptionRoutes = require('./routes/subscriptionRoutes.js')
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes)
+app.use('/api/subscriptions',subscriptionRoutes)
 
 
 

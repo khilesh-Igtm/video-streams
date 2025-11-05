@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+// import { AuthContext } from "../context/AuthContext";
 import api from "../api/axios";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +39,7 @@ export default function Home() {
     );
   }
 
-  console.log('the videos ',videos)
+  // console.log('the videos ',videos)
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       {/* Video Grid */}
