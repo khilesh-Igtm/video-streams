@@ -3,7 +3,7 @@ const pool = require('../db')
 
 const createVideo = async (req, res) => {
   try {
-    const uploader_id = req.body.uploader; 
+    const uploader_id = req.body.uploader;
     const { title, description, category, tags } = req.body;
 
     const thumbnail = req.files.thumbnail?.[0];
@@ -68,21 +68,36 @@ const getAllVideos = async (req, res) => {
 };
 
 
-const getVideo = async(req,res)=>{
+const getVideo = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const result = await pool.query(
       `SELECT v.* , u.username FROM videos v JOIN users u ON v.uploader_id = u.id WHERE v.id = $1`, [id]
     );
-    if(result.rows.length === 0){
-      return res.status(404).json({error: "Video not found"});
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Video not found" });
     }
     res.json(result.rows[0]);
   } catch (error) {
-    console.error("Error fetching video: ",error);
-    res.status(500).json({error: "Failed to fetch video"})
+    console.error("Error fetching video: ", error);
+    res.status(500).json({ error: "Failed to fetch video" })
+  }
+}
+
+const getVideosByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(
+      `SELECT id, title, description, category, tags, video_url, views, thumbnail_url, created_at 
+       FROM videos WHERE uploader_id = $1 ORDER BY created_at DESC`,
+      [userId]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching user videos:", error);
+    res.status(500).json({ error: "Failed to fetch user's videos" });
   }
 }
 
 
-module.exports = {createVideo, getAllVideos,getVideo};
+module.exports = { createVideo, getAllVideos, getVideo, getVideosByUser };

@@ -24,6 +24,7 @@ export default function Navbar() {
               <Link to="/watch-later" className="text-sm text-slate-600 hover:text-slate-900">Watch Later</Link>
 
                <Link to="/upload-videos" className="text-sm text-slate-600 hover:text-slate-900">Upload Videos</Link>
+                <Link to="/my-videos" className="text-sm text-slate-600 hover:text-slate-900">My Videos</Link>
              </>
             )}
           </div>

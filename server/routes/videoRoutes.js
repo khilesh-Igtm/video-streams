@@ -1,6 +1,6 @@
 const express = require("express");
 const upload = require("../middleware/upload.js");
-const { createVideo, getAllVideos, getVideo } = require("../controllers/videoController.js");
+const { createVideo, getAllVideos, getVideo, getVideosByUser } = require("../controllers/videoController.js");
 
 const router = express.Router();
 
@@ -15,5 +15,7 @@ router.post(
 
 router.get("/",getAllVideos);
 router.get("/:id",getVideo);
+
+router.get("/user/:userId", getVideosByUser);
 
 module.exports = router;

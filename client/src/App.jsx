@@ -9,6 +9,7 @@ import WatchLater from "./pages/WatchLater";
 import UploadVideos from "./pages/UploadVideos";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Watch from "./pages/Watch";
+import MyVideos from "./pages/MyVideos";
 
 function App() {
   return (
@@ -33,6 +34,12 @@ function App() {
               <Route path="/upload-videos" element={
                 <ProtectedRoute>
                   <UploadVideos/>
+                </ProtectedRoute>
+              }/>
+
+              <Route path="/my-videos" element={
+                <ProtectedRoute>
+                  <MyVideos/>
                 </ProtectedRoute>
               }/>
               {/* add other routes like /upload, /watch/:id etc */}
