@@ -1,5 +1,6 @@
 
 const pool = require('../db')
+const cloudinary = require('../config/cloudinary')
 
 const createVideo = async (req, res) => {
   try {
@@ -100,4 +101,55 @@ const getVideosByUser = async (req, res) => {
 }
 
 
-module.exports = { createVideo, getAllVideos, getVideo, getVideosByUser };
+const updateVideo = async(req,res)=>{
+  const {id} = req.params; //getting video id
+  const {title, description} = req.body;
+  const userId = req.user.id; //logged in user
+
+  try {
+    const result = await pool.query(
+      `UPDATE videos SET title = $1, description = $2 WHERE id = $3 AND uploader_id = $4 RETURNING *`, [title, description, id, userId]
+    );
+
+    if(result.rowCount === 0){
+      return res.status(403).json({message: "Not authorized to update this video"});
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating video: ",err)
+    res.status(500).json({message: "Internal server error"})
+  }
+}
+
+
+const deleteVideo = async(req,res)=>{
+  const {id} = req.params;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT video_public_id, thumbnail_public_id FROM videos where id = $1 AND uploader_id = $2`, [id, userId]
+    )
+
+    if(result.rowCount === 0){
+      return res.status(403).json({message: "Not authorized to delete this video."})
+    }
+    const {video_public_id, thumbnail_public_id} = result.rows[0];
+
+    // delete from cloudinary
+    await cloudinary.uploader.destroy(video_public_id, {resource_type: "video"})
+    await cloudinary.uploader.destroy(thumbnail_public_id);
+
+    await pool.query(`DELETE FROM videos WHERE id = $1 AND uploader_id = $2`, [id,userId]);
+
+
+    res.status(200).json({message: "Video deleted successfully"})
+  } catch (error) {
+    console.error("Error deleting video: ",err)
+    res.status(500).json({message: "Internal server error"})
+  }
+}
+
+
+module.exports = { createVideo, getAllVideos, getVideo, getVideosByUser , updateVideo, deleteVideo};
